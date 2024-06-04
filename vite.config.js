@@ -146,8 +146,8 @@ const webSocketServer = {
 				//console.log(fieldId);
 				//console.log(field);
 				if (field.type !== 'player' || field.value !== this.playerOnTurn) return [false, false];
+				if (fieldId === 1) return [true, true];
 
-				if (fieldId === 0) return [true, true];
 				const row = this.getRow(fieldId);
 				//console.log(row);
 				const leftmostRowFieldId = (row * (row - 1)) / 2 + 1;
@@ -157,13 +157,13 @@ const webSocketServer = {
 					`row: ${row}, field: ${fieldId}, leftmost: ${leftmostRowFieldId}, rightmost: ${rightmostRowFieldId}`
 				);
 
-				if (fieldId === leftmostRowFieldId) return [true, false];
-				if (fieldId === rightmostRowFieldId) return [false, true];
-
 				let doesTouchLeft,
 					doesTouchRight,
 					currentDoesTouchLeft,
 					currentDoesTouchRight = false;
+
+				if (fieldId === leftmostRowFieldId) doesTouchLeft = true;
+				if (fieldId === rightmostRowFieldId) doesTouchRight = true;
 
 				let nextToSearch = null;
 
