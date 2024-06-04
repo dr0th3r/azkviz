@@ -89,8 +89,10 @@ const webSocketServer = {
 			}
 
 			serialize() {
+				const id = Object.keys(lobbies).find((key) => lobbies[key].id === this.id);
+
 				return {
-					id: this.id,
+					id: id,
 					players: this.players,
 					fields: this.fields,
 					playerOnTurn: this.playerOnTurn
@@ -268,9 +270,12 @@ const webSocketServer = {
 				if (lobby != null) return;
 
 				let lobbyId = `${socket.id}_lobby`;
+				const shortId = Math.floor(Math.random() * 10000);
+
+				console.log(shortId);
 
 				lobby = new Lobby(lobbyId);
-				lobbies[lobbyId] = lobby;
+				lobbies[shortId] = lobby;
 
 				lobby.joinGame(socket, username);
 				lobby.playerOnTurn = socket.id;
@@ -279,14 +284,14 @@ const webSocketServer = {
 				socket.emit('lobby info', lobby.serialize());
 			});
 
-			socket.on('join lobby', (username, lobbyId) => {
+			socket.on('join lobby', (username, shortId) => {
 				if (lobby != null) return;
 
-				lobby = lobbies[lobbyId];
+				lobby = lobbies[shortId];
 				lobby.joinGame(socket, username);
-				socket.join(lobbyId);
+				socket.join(lobby.id);
 
-				io.to(lobbyId).emit('lobby info', lobby.serialize());
+				io.to(lobby.id).emit('lobby info', lobby.serialize());
 			});
 
 			socket.on('leave lobby', () => {
