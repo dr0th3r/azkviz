@@ -4,7 +4,7 @@ import { defineConfig } from 'vite';
 
 const setsPerQuestion = 2;
 
-const playerColors = ['#F00', '#FFA500', '0F0'];
+const playerColors = ['blue', 'green'];
 
 const webSocketServer = {
 	name: 'wsServer',
@@ -119,11 +119,13 @@ const webSocketServer = {
 					let doesTouchLeft = i === 21;
 					let doesTouchRight = i === 27;
 
+					let visited = [];
+
 					const field = this.fields[i];
 					if (field.type === 'player' && field.value === this.playerOnTurn) {
 						const [currentDoesTouchLeft, currentDoesTouchRight] = this.recursiveSearchSides(
 							i + 1,
-							[]
+							visited
 						);
 						doesTouchLeft = doesTouchLeft || currentDoesTouchLeft;
 						doesTouchRight = doesTouchRight || currentDoesTouchRight;
@@ -139,15 +141,19 @@ const webSocketServer = {
 			recursiveSearchSides(fieldId, alreadySearched) {
 				//could be done better, but this is clearer to imagine
 				const field = this.fields[fieldId - 1];
-				console.log(fieldId);
-				console.log(field);
+				//console.log(fieldId);
+				//console.log(field);
 				if (field.type !== 'player' || field.value !== this.playerOnTurn) return [false, false];
 
 				if (fieldId === 0) return [true, true];
 				const row = this.getRow(fieldId);
-				console.log(row);
-				const leftmostRowFieldId = (row * (row - 1)) / 2;
-				const rightmostRowFieldId = (row * (row + 1)) / 2 - 1;
+				//console.log(row);
+				const leftmostRowFieldId = (row * (row - 1)) / 2 + 1;
+				const rightmostRowFieldId = (row * (row + 1)) / 2;
+
+				console.log(
+					`row: ${row}, field: ${fieldId}, leftmost: ${leftmostRowFieldId}, rightmost: ${rightmostRowFieldId}`
+				);
 
 				if (fieldId === leftmostRowFieldId) return [true, false];
 				if (fieldId === rightmostRowFieldId) return [false, true];
@@ -159,8 +165,9 @@ const webSocketServer = {
 
 				let nextToSearch = null;
 
-				console.log(alreadySearched);
+				//console.log(alreadySearched);
 
+				//search up
 				if (row > 1) {
 					nextToSearch = fieldId - row + 1;
 					if (!alreadySearched.includes(nextToSearch)) {
@@ -184,6 +191,7 @@ const webSocketServer = {
 					}
 				}
 
+				//search left
 				nextToSearch = fieldId - 1;
 				if (nextToSearch >= leftmostRowFieldId && !alreadySearched.includes(nextToSearch)) {
 					[currentDoesTouchLeft, currentDoesTouchRight] = this.recursiveSearchSides(nextToSearch, [
@@ -193,6 +201,7 @@ const webSocketServer = {
 					doesTouchLeft = doesTouchLeft || currentDoesTouchLeft;
 					doesTouchRight = doesTouchRight || currentDoesTouchRight;
 				}
+				//search right
 				nextToSearch = fieldId + 1;
 				if (nextToSearch <= rightmostRowFieldId && !alreadySearched.includes(nextToSearch)) {
 					[currentDoesTouchLeft, currentDoesTouchRight] = this.recursiveSearchSides(nextToSearch, [
@@ -203,6 +212,7 @@ const webSocketServer = {
 					doesTouchRight = doesTouchRight || currentDoesTouchRight;
 				}
 
+				//search down
 				if (row < 7) {
 					nextToSearch = fieldId + row;
 					if (!alreadySearched.includes(nextToSearch)) {
@@ -351,6 +361,11 @@ const webSocketServer = {
 
 					io.to(lobbyId).emit('wrong answer', lobby.playerOnTurn);
 				} else {
+					lobby.fields[lobby.selectedFieldId] = {
+						type: 'player',
+						value: socket.id
+					};
+
 					if (lobby.checkForWin()) {
 						console.log('win');
 						io.to(lobbyId).emit('player won', lobby.playerOnTurn);
@@ -364,10 +379,6 @@ const webSocketServer = {
 					lobby.playerOnTurn = playerIds[nextPlayerIndex];
 
 					io.to(lobbyId).emit('correct answer', lobby.playerOnTurn, questionId);
-					lobby.fields[lobby.selectedFieldId] = {
-						type: 'player',
-						value: socket.id
-					};
 				}
 			});
 		});
