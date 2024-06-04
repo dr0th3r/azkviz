@@ -12,7 +12,7 @@
     let answerCounter = 0
 
     function showQuestion(questionId) {
-        if (socket.id !== lobbyInfo.playerOnTurn || lobbyInfo?.fields[questionId]?.type !== "remaining") return;
+        if (question !== "" || socket.id !== lobbyInfo.playerOnTurn || lobbyInfo?.fields[questionId]?.type !== "remaining") return;
         socket.emit("show question", questionId)
     }
 
@@ -24,6 +24,7 @@
     socket.on("wrong answer", (nextPlayerId) => {
         lobbyInfo.playerOnTurn = nextPlayerId
         question = ""
+        answer = ""
         answerCounter++
     })
 
@@ -34,6 +35,7 @@
         }
         lobbyInfo.playerOnTurn = nextPlayerId
         question = ""
+        answer = ""
         lobbyInfo = lobbyInfo
         answerCounter++
     })
@@ -90,13 +92,13 @@
     }
 
     .question-btn {
-        width: 8vw;
-        height: 8vw;
+        width: 12vw;
+        height: 12vw;
         color: blue;
     }
 
     .remaining {
-        background-color: red;
+        background-color: #555;
     }
 
     .modal {
@@ -110,6 +112,14 @@
         gap: .3rem;
         padding: 1rem;
         min-width: 10rem;
+        max-width: 90vw;
+        text-align: center;
+        box-sizing: border-box;
+    }
+
+    .modal input {
+        margin: 0.5rem;
+        max-width: 80vw;
     }
 
 </style>

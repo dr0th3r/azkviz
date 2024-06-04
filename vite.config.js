@@ -4,7 +4,7 @@ import { defineConfig } from 'vite';
 
 const setsPerQuestion = 2;
 
-const playerColors = ['blue', 'green'];
+const playerColors = ['#5b5bdd', '#B90E0A'];
 
 const webSocketServer = {
 	name: 'wsServer',
@@ -46,7 +46,7 @@ const webSocketServer = {
 
 		const answers = [
 			['aorta'],
-			['žily'],
+			['žíly'],
 			['kyslík'],
 			['vlásečnice'],
 			['srdce'],
@@ -58,7 +58,7 @@ const webSocketServer = {
 			['bílá'],
 			['systola'],
 			['diastola'],
-			['jánsky'],
+			['jánský'],
 			['destičky'],
 			['a'],
 			['120/80'],
@@ -355,7 +355,7 @@ const webSocketServer = {
 				console.log(playerAnswer, answer);
 				const lobbyId = lobby.id;
 
-				if (playerAnswer !== answer) {
+				if (playerAnswer.toLowerCase() !== answer) {
 					lobby.selectedFieldId = null;
 
 					const playerIds = Object.keys(lobby.players);

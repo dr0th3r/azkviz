@@ -110,5 +110,7 @@
         border: none;
         background-color: #555;
         color: #fff;
+        min-width: 0;
+        box-sizing: border-box;
     }
 </style>

@@ -25,5 +25,6 @@
         display: flex;
         flex-direction: column;
         gap: .3rem;
+        max-width: 90vw;
     }
 </style>
